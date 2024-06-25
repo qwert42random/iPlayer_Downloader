@@ -1,0 +1,13 @@
+prefix=/home/christopher/Desktop/Misc/WebScrapers/DoctorWho
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+modules=1
+
+Name: libXML
+Version: 2.13.1
+Description: libXML library version2.
+Requires.private: 
+Libs: -L${libdir} -lxml2 
+Libs.private:    -lm   
+Cflags: -I${includedir}/libxml2 
