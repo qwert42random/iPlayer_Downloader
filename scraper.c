@@ -72,10 +72,24 @@ int main()
 
     // retrieve the HTML document of the target page
     struct CURLResponse response = GetRequest(curl_handle, "https://www.scrapingcourse.com/ecommerce/");
-    // print the HTML content
-    printf("%s\n", response.html);
 
-    // scraping logic...
+    // Scraping logic...
+    htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
+    xmlXPathContextPtr context = xmlXPathNewContext(doc);
+    xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'product')]", context);
+
+    for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
+        // Get the current element of the loop.
+        xmlNodePtr productHTMLElement = productHTMLElements->nodesetval->nodeTab[i];
+
+        // Set the context to restrict XPath selectors to the children of the current element.
+        xmlXPathSetContextNode(productHTMLElement, context);
+        xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/h2", context)->nodesetval->nodeTab[0];
+
+        // Get and print the scraped data.
+        char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
+        printf("%s\n", name);
+    }
 
     // cleanup the curl instance
     curl_easy_cleanup(curl_handle);
