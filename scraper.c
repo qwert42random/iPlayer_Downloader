@@ -50,6 +50,10 @@ struct CURLResponse GetRequest(CURL *curl_handle, const char *url)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&response);
     // set a User-Agent header
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36");
+
+    // Allow redirecting
+    curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+
     // perform the GET request
     res = curl_easy_perform(curl_handle);
 
@@ -70,25 +74,32 @@ int main()
     // initialize a CURL instance
     CURL *curl_handle = curl_easy_init();
 
-    // retrieve the HTML document of the target page
-    struct CURLResponse response = GetRequest(curl_handle, "https://www.scrapingcourse.com/ecommerce/");
 
-    // Scraping logic...
-    htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
-    xmlXPathContextPtr context = xmlXPathNewContext(doc);
-    xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'product')]", context);
+    for (int page = 1; page <= 12; page++) {
+        char url[50];
+        snprintf(url, sizeof(url), "https://www.scrapingcourse.com/ecommerce/page/%d/", page);
 
-    for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
-        // Get the current element of the loop.
-        xmlNodePtr productHTMLElement = productHTMLElements->nodesetval->nodeTab[i];
+        // retrieve the HTML document of the target page
+        struct CURLResponse response = GetRequest(curl_handle, url);
 
-        // Set the context to restrict XPath selectors to the children of the current element.
-        xmlXPathSetContextNode(productHTMLElement, context);
-        xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/h2", context)->nodesetval->nodeTab[0];
+        // Scraping logic...
+        htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
+        xmlXPathContextPtr context = xmlXPathNewContext(doc);
+        xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'product')]", context);
 
-        // Get and print the scraped data.
-        char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
-        printf("%s\n", name);
+        printf("\n--- PAGE %d ---\n\n", page);   
+        for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
+            // Get the current element of the loop.
+            xmlNodePtr productHTMLElement = productHTMLElements->nodesetval->nodeTab[i];
+
+            // Set the context to restrict XPath selectors to the children of the current element.
+            xmlXPathSetContextNode(productHTMLElement, context);
+            xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/h2", context)->nodesetval->nodeTab[0];
+
+            // Get and print the scraped data.
+            char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
+            printf("%s\n", name);
+        }
     }
 
     // cleanup the curl instance
