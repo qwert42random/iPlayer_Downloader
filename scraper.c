@@ -50,6 +50,9 @@ struct CURLResponse GetRequest(CURL *curl_handle, const char *url)
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&response);
     // set a User-Agent header
     curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36");
+    // Allow redirecting
+    curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
+
     // perform the GET request
     res = curl_easy_perform(curl_handle);
 
