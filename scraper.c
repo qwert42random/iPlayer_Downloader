@@ -74,11 +74,34 @@ int main()
     CURL *curl_handle = curl_easy_init();
 
     // retrieve the HTML document of the target page
-    struct CURLResponse response = GetRequest(curl_handle, "https://www.scrapingcourse.com/ecommerce/");
-    // print the HTML content
-    printf("%s\n", response.html);
+    struct CURLResponse response = GetRequest(curl_handle, "https://www.bbc.co.uk/iplayer/episodes/p0ggwr8l/doctor-who-19631996?seriesId=b009x51p");
 
-    // scraping logic...
+    // Get the links for every season.
+
+    // Scraping logic...
+    htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
+    xmlXPathContextPtr context = xmlXPathNewContext(doc);
+    if (context == NULL) {
+        fprintf(stderr, "There was an error\n");
+    }
+
+    xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'scrollable-nav__item')]", context);
+    if (productHTMLElements == NULL) {
+        fprintf(stderr, "There was an error\n");
+    }
+
+    for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
+        // Get the current element of the loop.
+        xmlNodePtr productHTMLElement = productHTMLElements->nodesetval->nodeTab[i];
+
+        // Set the context to restrict XPath selectors to the children of the current element.
+        xmlXPathSetContextNode(productHTMLElement, context);
+        xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/span", context)->nodesetval->nodeTab[0];
+
+        // Get and print the scraped data.
+        char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
+        printf("%d: %s\n", i, name);
+    }
 
     // cleanup the curl instance
     curl_easy_cleanup(curl_handle);
