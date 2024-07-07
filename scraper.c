@@ -85,22 +85,23 @@ int main()
         fprintf(stderr, "There was an error\n");
     }
 
-    xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'scrollable-nav__item')]", context);
+    xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'main')]", context);
     if (productHTMLElements == NULL) {
         fprintf(stderr, "There was an error\n");
     }
 
-    for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
-        // Get the current element of the loop.
-        xmlNodePtr productHTMLElement = productHTMLElements->nodesetval->nodeTab[i];
+    // Set the context to restrict XPath selectors to the children of the current element.
+    xmlXPathSetContextNode(productHTMLElements->nodesetval->nodeTab[0], context);
+    xmlXPathObjectPtr seasonHTMLElements = xmlXPathEvalExpression((xmlChar *) "./div[2]/div[2]/div/div/nav/ul/li", context);
+    printf("Number of nodes: %d\n", seasonHTMLElements->nodesetval->nodeNr);
 
-        // Set the context to restrict XPath selectors to the children of the current element.
-        xmlXPathSetContextNode(productHTMLElement, context);
-        xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/span", context)->nodesetval->nodeTab[0];
+    for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr; ++i) {
+        // Get the current element of the loop.
+        xmlNodePtr productHTMLElement = seasonHTMLElements->nodesetval->nodeTab[i];
 
         // Get and print the scraped data.
-        char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
-        printf("%d: %s\n", i, name);
+        char *name = strdup((char *) (xmlNodeGetContent(productHTMLElement)));
+        printf("%d: %s\n", i + 1, name);
     }
 
     // cleanup the curl instance
