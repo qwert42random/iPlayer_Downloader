@@ -17,7 +17,7 @@ int main()
     CURL *curl_handle = curl_easy_init();
 
     // retrieve the HTML document of the target page
-    struct CURLResponse response = GetRequest(curl_handle, "https://www.bbc.co.uk/iplayer/episodes/p0ggwr8l/doctor-who-19631996?seriesId=b009x51p");
+    struct CURLResponse response = GetRequest(curl_handle, "https://www.bbc.co.uk/iplayer/episodes/p0ggwr8l/doctor-who-19631996?seriesId=more-like-this");
 
     htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
     xmlXPathContextPtr context = xmlXPathNewContext(doc);
@@ -37,7 +37,7 @@ int main()
     xmlXPathObjectPtr seasonHTMLElements = xmlXPathEvalExpression((xmlChar *) "./div[2]/div[2]/div/div/nav/ul/li", context);
     printf("Number of nodes: %d\n", seasonHTMLElements->nodesetval->nodeNr);
 
-    for (int i = 1; i < seasonHTMLElements->nodesetval->nodeNr; ++i) {
+    for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr - 1; ++i) {
         // Get the current element of the loop.
         xmlNodePtr seasonNodePtr = seasonHTMLElements->nodesetval->nodeTab[i];
 
