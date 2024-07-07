@@ -1,2 +1,4 @@
 scraper
 /.vscode/
+**.h.gch
+*.o

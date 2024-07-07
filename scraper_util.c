@@ -1,8 +1,11 @@
 #include "scraper_util.h"
 
 #include <curl/curl.h>
+#include <curl/typecheck-gcc.h>
 #include <libxml2/libxml/HTMLparser.h>
 #include <libxml2/libxml/xpath.h>
+#include <stdlib.h>
+#include <string.h>
 
 static size_t WriteHTMLCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {

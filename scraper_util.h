@@ -2,6 +2,7 @@
 #define SCRAPER_UTIL_H
 
 #include <stdio.h>
+#include <curl/curl.h>
 
 struct CURLResponse
 {
