@@ -37,14 +37,21 @@ int main()
     xmlXPathObjectPtr seasonHTMLElements = xmlXPathEvalExpression((xmlChar *) "./div[2]/div[2]/div/div/nav/ul/li", context);
     printf("Number of nodes: %d\n", seasonHTMLElements->nodesetval->nodeNr);
 
+    struct SeasonData *season_list;
+    season_list = malloc(sizeof(struct SeasonData) * (seasonHTMLElements->nodesetval->nodeNr - 1));
+
     for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr - 1; ++i) {
         // Get the current element of the loop.
         xmlNodePtr seasonNodePtr = seasonHTMLElements->nodesetval->nodeTab[i];
 
         // Get and print the scraped data.
-        char *name = strdup((char *) (xmlNodeGetContent(seasonNodePtr)));
-        char *link = strdup((char *) (xmlGetProp(seasonNodePtr->children, (xmlChar *) "href")));
-        printf("%d: %s- %s\n", i + 1, name, link);
+        season_list[i].name = strdup((char *) (xmlNodeGetContent(seasonNodePtr)));
+        season_list[i].link = strdup((char *) (xmlGetProp(seasonNodePtr->children, (xmlChar *) "href")));
+    }
+
+    for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr - 1; i++) {
+        struct SeasonData *seasonPtr = &season_list[i];
+        printf("%d: %s- %s\n", i + 1, seasonPtr->name, seasonPtr->link);
     }
 
     // cleanup the curl instance

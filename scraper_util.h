@@ -10,6 +10,11 @@ struct CURLResponse
     size_t size;
 };
 
+struct SeasonData {
+    char *name;
+    char *link;
+};
+
 static size_t WriteHTMLCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
 struct CURLResponse GetRequest(CURL *curl_handle, const char *url);
