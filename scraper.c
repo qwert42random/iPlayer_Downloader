@@ -85,7 +85,13 @@ int main()
         // Scraping logic...
         htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
         xmlXPathContextPtr context = xmlXPathNewContext(doc);
-        xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *)"//li[contains(@class, 'product')]", context);
+        xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *) "/html/body/div/div/div/div[2]/main/ul/li", context);
+        if (productHTMLElements == NULL) {
+            printf("There is an error!\n");
+            return -1;
+        }
+
+        printf("Number of nodes: %d\n", productHTMLElements->nodesetval->nodeNr);
 
         printf("\n--- PAGE %d ---\n\n", page);   
         for (int i = 0; i < productHTMLElements->nodesetval->nodeNr; ++i) {
@@ -94,7 +100,7 @@ int main()
 
             // Set the context to restrict XPath selectors to the children of the current element.
             xmlXPathSetContextNode(productHTMLElement, context);
-            xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)".//a/h2", context)->nodesetval->nodeTab[0];
+            xmlNodePtr nameHTMLElement = xmlXPathEvalExpression((xmlChar *)"./a[1]/h2", context)->nodesetval->nodeTab[0];
 
             // Get and print the scraped data.
             char *name = strdup((char *) (xmlNodeGetContent(nameHTMLElement)));
