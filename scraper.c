@@ -76,15 +76,14 @@ int main()
     // retrieve the HTML document of the target page
     struct CURLResponse response = GetRequest(curl_handle, "https://www.bbc.co.uk/iplayer/episodes/p0ggwr8l/doctor-who-19631996?seriesId=b009x51p");
 
-    // Get the links for every season.
-
-    // Scraping logic...
     htmlDocPtr doc = htmlReadMemory(response.html, (unsigned long)response.size, NULL, NULL, HTML_PARSE_NOERROR);
     xmlXPathContextPtr context = xmlXPathNewContext(doc);
     if (context == NULL) {
         fprintf(stderr, "There was an error\n");
     }
 
+    // Get the links for every season.
+    // Scraping logic...
     xmlXPathObjectPtr productHTMLElements = xmlXPathEvalExpression((xmlChar *) "//div[contains(@id, 'main')]", context);
     if (productHTMLElements == NULL) {
         fprintf(stderr, "There was an error\n");
@@ -95,13 +94,14 @@ int main()
     xmlXPathObjectPtr seasonHTMLElements = xmlXPathEvalExpression((xmlChar *) "./div[2]/div[2]/div/div/nav/ul/li", context);
     printf("Number of nodes: %d\n", seasonHTMLElements->nodesetval->nodeNr);
 
-    for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr; ++i) {
+    for (int i = 1; i < seasonHTMLElements->nodesetval->nodeNr; ++i) {
         // Get the current element of the loop.
-        xmlNodePtr productHTMLElement = seasonHTMLElements->nodesetval->nodeTab[i];
+        xmlNodePtr seasonNodePtr = seasonHTMLElements->nodesetval->nodeTab[i];
 
         // Get and print the scraped data.
-        char *name = strdup((char *) (xmlNodeGetContent(productHTMLElement)));
-        printf("%d: %s\n", i + 1, name);
+        char *name = strdup((char *) (xmlNodeGetContent(seasonNodePtr)));
+        char *link = strdup((char *) (xmlGetProp(seasonNodePtr->children, (xmlChar *) "href")));
+        printf("%d: %s- %s\n", i + 1, name, link);
     }
 
     // cleanup the curl instance
