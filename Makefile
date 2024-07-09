@@ -9,5 +9,6 @@ scraper_util.o: scraper_util.c scraper_util.h
 	gcc -I./include -I./include/libxml2 scraper_util.c -c
 
 clean:
-	rm scraper scraper_util.h.gch scraper_util.o
+	rm scraper scraper_util.o
+	rm -rf output
 .PHONY: clean

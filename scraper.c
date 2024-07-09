@@ -1,15 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <curl/curl.h>
 #include <curl/typecheck-gcc.h>
 #include <libxml2/libxml/HTMLparser.h>
 #include <libxml2/libxml/xpath.h>
+#include <sys/stat.h>
 #include "scraper_util.h"
 
-int main()
+int main(void)
 {
+    mkdir("output", 0755);
+    mkdir("output/DoctorWho_1963-1996", 0755);
+
     // initialize curl globally
     curl_global_init(CURL_GLOBAL_ALL);
 
@@ -51,7 +56,19 @@ int main()
 
     for (int i = 0; i < seasonHTMLElements->nodesetval->nodeNr - 1; i++) {
         struct SeasonData *seasonPtr = &season_list[i];
-        printf("%d: %s- %s\n", i + 1, seasonPtr->name, seasonPtr->link);
+        char dirPath[256];
+
+        printf("\n--- %d: %s---\n\n", i + 1, seasonPtr->name);
+        snprintf(dirPath, sizeof(dirPath), "output/DoctorWho_1963-1996/%d_%s", i + 1, seasonPtr->name);
+        mkdir(dirPath, 0755);
+
+        int pageCount = get_page_count(seasonPtr->link);
+        if (pageCount < 0) {
+            fprintf(stderr, "Error getting number of pages");
+        }
+
+        if (scrape_season(*seasonPtr, dirPath, pageCount))
+            return -1;
     }
 
     // cleanup the curl instance

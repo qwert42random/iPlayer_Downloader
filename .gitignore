@@ -2,3 +2,4 @@ scraper
 /.vscode/
 **.h.gch
 *.o
+/output/
