@@ -113,6 +113,13 @@ int scrape_season(struct SeasonData season, char *outputPath, size_t pageCount) 
             xmlNodePtr xmlNodeEpisodeTitle = xmlXPathEvalExpression((xmlChar *) "./a/div[2]", context)->nodesetval->nodeTab[0];
 
             char *episodeTitle = strdup((char *) (xmlNodeGetContent(xmlNodeEpisodeTitle)));
+
+            // Remove apostraphes (can screw with code).
+            for (int i = 0; i < strlen(episodeTitle); i++) {
+                if (episodeTitle[i] == '\'')
+                    episodeTitle[i] = '_';
+            }
+
             char *episodeLink = strdup((char *) (xmlGetProp(xmlNodeEpisodeTitle->parent, (xmlChar *) "href")));
 
             char command[512];
